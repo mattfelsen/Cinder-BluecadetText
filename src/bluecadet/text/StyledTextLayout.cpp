@@ -547,11 +547,11 @@ bool StyledTextLayout::hasChanges() const {
 	return mHasInvalidLayout || mHasInvalidSize;
 }
 
-ci::Surface	StyledTextLayout::renderToSurface(bool useAlpha, bool premultiplied, const ci::ColorA8u & clearColor) {
+ci::SurfaceRef StyledTextLayout::renderToSurface(bool useAlpha, bool premultiplied, const ci::ColorA8u & clearColor) {
 	validateLayout();
 	validateSize();
 
-	ci::Surface result;
+	ci::SurfaceRef result;
 	ci::ivec2 bitmapSize = getTextSize();
 
 	// Odd failure - return a NULL Surface
@@ -563,10 +563,10 @@ ci::Surface	StyledTextLayout::renderToSurface(bool useAlpha, bool premultiplied,
 	bitmapSize.y += 1;
 
 	// prep our GDI and GDI+ resources
-	result = ci::Surface8u(bitmapSize.x, bitmapSize.y, useAlpha, ci::SurfaceConstraintsGdiPlus());
-	result.setPremultiplied(premultiplied);
+	result = ci::Surface8u::create(bitmapSize.x, bitmapSize.y, useAlpha, ci::SurfaceConstraintsGdiPlus());
+	result->setPremultiplied(premultiplied);
 
-	Gdiplus::Bitmap *offscreenBitmap = ci::msw::createGdiplusBitmap(result);
+	Gdiplus::Bitmap *offscreenBitmap = ci::msw::createGdiplusBitmap(*result);
 	Gdiplus::Graphics *offscreenGraphics = Gdiplus::Graphics::FromImage(offscreenBitmap);
 	offscreenGraphics->SetTextRenderingHint(Gdiplus::TextRenderingHint::TextRenderingHintAntiAlias);
 	offscreenGraphics->Clear(Gdiplus::Color(clearColor.a, clearColor.r, clearColor.g, clearColor.b));
